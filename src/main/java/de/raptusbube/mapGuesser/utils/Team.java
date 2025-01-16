@@ -20,6 +20,7 @@ public class Team {
     private final MapGuesser instance;
     private int taskId;
     private boolean isGameRunning;
+    private Location spawn;
 
     public Team(List<Player> players, List<Player> spectators, int teamId) {
         this.players = players;
@@ -33,13 +34,23 @@ public class Team {
 
     public void startGame(int duration, Location location) {
         isGameRunning = true;
+        spawn = location;
         ItemStack itemStack = new ItemStack(Material.RED_BED);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.RED + "Lobby");
+        itemMeta.setDisplayName(ChatColor.RED + "Lobby (Game abbrechen)");
         itemStack.setItemMeta(itemMeta);
+        ItemStack itemStack1 = new ItemStack(Material.COMPASS);
+        ItemMeta itemMeta1 = itemStack1.getItemMeta();
+        itemMeta1.setDisplayName(ChatColor.GREEN + "Zurück zum Anfang");
+        itemStack1.setItemMeta(itemMeta1);
         players.forEach(player -> player.getInventory().setItem(0, itemStack));
+        players.forEach(player -> player.getInventory().setItem(4, itemStack1));
         players.forEach(player -> player.teleport(location));
-        players.forEach(player -> hidePlayersNotInTeam(player, this));
+        if(canMove) {
+            players.forEach(player -> hidePlayersNotInTeam(player, this));
+        }else{
+            players.forEach(this::hidePlayers);
+        }
         spectators.forEach(player -> player.setGameMode(GameMode.SPECTATOR));
         spectators.forEach(player -> player.teleport(location));
          taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(instance, new Runnable() {
@@ -68,11 +79,14 @@ public class Team {
                         players.forEach(player -> player.sendMessage(instance.getPrefix() + ChatColor.RED+ "Die Zeit ist um!"));
                         players.forEach(player -> player.teleport(lobby));
                         spectators.forEach(player -> player.teleport(lobby));
+                        players.forEach(player -> player.setFlying(false));
                         players.forEach(player -> showPlayers(player));
+                        players.forEach(player -> player.getInventory().clear());
                         spectators.forEach(player -> player.setGameMode(GameMode.ADVENTURE));
                         ItemStack itemStack = new ItemStack(Material.COMPASS);
                         ItemMeta itemMeta = itemStack.getItemMeta();
                         itemMeta.setDisplayName(ChatColor.GOLD + "Map Selector");
+                        canMove = true;
                         itemStack.setItemMeta(itemMeta);
                         players.forEach(player -> player.getInventory().setItem(0, itemStack));
                         Bukkit.getScheduler().cancelTask(taskId);
@@ -92,16 +106,19 @@ public class Team {
 
     public void cancelGame(){
         isGameRunning = false;
-        ItemStack itemStack = new ItemStack(Material.COMPASS);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.GOLD + "Map Selector");
-        itemStack.setItemMeta(itemMeta);
         players.forEach(this::showPlayers);
-        players.forEach(player -> player.getInventory().setItem(0, itemStack));
+        players.forEach(player -> player.setFlying(false));
         Location lobby = instance.getFileManager().getSpawnLocations().get("lobby");
         players.forEach(player -> player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0)));
         players.forEach(player -> player.sendMessage(instance.getPrefix() + ChatColor.RED+ "Das Spiel wurde vorzeitig beendet!"));
         players.forEach(player -> player.teleport(lobby));
+        players.forEach(player -> player.getInventory().clear());
+        ItemStack itemStack = new ItemStack(Material.COMPASS);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        itemMeta.setDisplayName(ChatColor.GOLD + "Map Selector");
+        itemStack.setItemMeta(itemMeta);
+        players.forEach(player -> player.getInventory().setItem(0, itemStack));
+        canMove = true;
         spectators.forEach(player -> player.teleport(lobby));
         spectators.forEach(player -> player.setGameMode(GameMode.ADVENTURE));
         Bukkit.getScheduler().cancelTask(taskId);
@@ -110,6 +127,10 @@ public class Team {
 
     public void setPlayers(List<Player> players) {
         this.players = players;
+    }
+
+    public Location getSpawn() {
+        return spawn;
     }
 
     public void setSpectators(List<Player> spectators) {
@@ -161,6 +182,12 @@ public class Team {
             if (!currentTeam.getPlayers().contains(player)) {
                 currentPlayer.hidePlayer(instance, player);
             }
+        }
+    }
+
+    public void hidePlayers(Player currentPlayer) {
+        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+            currentPlayer.hidePlayer(instance, player);
         }
     }
 

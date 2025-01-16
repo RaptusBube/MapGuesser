@@ -106,7 +106,7 @@ public final class MapGuesser extends JavaPlugin {
         LifecycleEventManager<Plugin> manager = this.getLifecycleManager();
         manager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
-            commands.register("mg", "MapGuesser Command", List.of("tpc"), new MapGuesserCMD(this));
+            commands.register("mg", "MapGuesser Command", List.of("tg"), new MapGuesserCMD(this));
         });
 
     }

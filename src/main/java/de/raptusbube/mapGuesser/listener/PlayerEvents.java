@@ -105,14 +105,10 @@ public class PlayerEvents implements Listener {
                 List<String> sortedMaps = instance.getFileManager().getSpawnLocations().keySet()
                         .stream()
                         .sorted((map1, map2) -> {
-                            // Extract numeric parts
                             String numPart1 = map1.replaceAll("[^0-9]", "");
                             String numPart2 = map2.replaceAll("[^0-9]", "");
-
-                            // Default to Integer.MAX_VALUE if no numeric part is found
                             int num1 = numPart1.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(numPart1);
                             int num2 = numPart2.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(numPart2);
-
                             return Integer.compare(num1, num2);
                         })
                         .toList();
@@ -126,11 +122,15 @@ public class PlayerEvents implements Listener {
                 }
                 player.openInventory(inv);
                 event.setCancelled(true);
-            }else if(displayName.equals(ChatColor.RED + "Lobby")){
+            }else if(displayName.equals(ChatColor.RED + "Lobby (Game abbrechen)")){
                 if(instance.getTeamManager().isPlayerInTeam(player)){
                     if(instance.getTeamManager().getTeamFromPlayer(player).isGameRunning()){
                         instance.getTeamManager().getTeamFromPlayer(player).cancelGame();
                     }
+                }
+            }else if(displayName.equals(ChatColor.GREEN + "Zurück zum Anfang")){
+                if(instance.getTeamManager().isPlayerInTeam(player)){
+                    player.teleport(instance.getTeamManager().getTeamFromPlayer(player).getSpawn());
                 }
             }
         }
@@ -142,9 +142,9 @@ public class PlayerEvents implements Listener {
         if (event.getCurrentItem().getItemMeta() == null) return;
         if (event.getCurrentItem().getItemMeta().getDisplayName() == null) return;
         Player player = (Player) event.getWhoClicked();
+        event.setCancelled(true);
         String displayName = event.getCurrentItem().getItemMeta().getDisplayName();
         if(instance.getFileManager().getSpawnLocations().keySet().contains(displayName)){
-            event.setCancelled(true);
             Team team;
             if((team = instance.getTeamManager().getTeamFromPlayer(player)) != null){
                 team.setCanMove(instance.getFileManager().getCanMove().get(displayName));
