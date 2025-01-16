@@ -1,16 +1,21 @@
 package de.raptusbube.mapGuesser;
 
+import de.raptusbube.mapGuesser.command.MapGuesserCMD;
 import de.raptusbube.mapGuesser.listener.PlayerEvents;
 import de.raptusbube.mapGuesser.utils.FileManager;
+import de.raptusbube.mapGuesser.utils.Team;
+import de.raptusbube.mapGuesser.utils.TeamManager;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.plugin.lifecycle.event.LifecycleEventManager;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 public final class MapGuesser extends JavaPlugin {
@@ -22,11 +27,14 @@ public final class MapGuesser extends JavaPlugin {
 
     public static FileManager fileManager;
 
-    private Thread countdownThread;
+    public TeamManager teamManager;
+
 
     private final String prefix = ChatColor.DARK_GREEN + "[MapGuesser] "+ ChatColor.GRAY;
 
     private boolean canMoveOnCurrentMap = true;
+
+    private List<Team> teams;
 
 
 
@@ -38,9 +46,12 @@ public final class MapGuesser extends JavaPlugin {
         logger = getLogger();
         fileManager = new FileManager();
         fileManager.setStandardConfig();
+        teams = new ArrayList<>();
+        teamManager = new TeamManager(this);
 
 
         registerEvents();
+        registerCommands();
 
         fileManager.readConfig();
 
@@ -73,42 +84,30 @@ public final class MapGuesser extends JavaPlugin {
         this.canMoveOnCurrentMap = canMoveOnCurrentMap;
     }
 
-    public void newCountdown(int seconds, Player player, Location lobbyLocation) {
-        player.sendMessage(prefix + "Du hast nun "+ChatColor.GOLD + seconds +ChatColor.GRAY+ " Sekunden die Map zu erkunden!");
-        if(countdownThread != null) {
-            canMoveOnCurrentMap = true;
-            countdownThread.interrupt();
-        }
-        countdownThread = new Thread(() -> {
-            try {
-                Thread.sleep(1000L *(seconds-15));
-            } catch (InterruptedException ignored) {
-                return;
-            }
-            player.sendMessage(prefix + "Du hast noch "+ChatColor.DARK_RED + "15" +ChatColor.GRAY+ " Sekunden!");
-            try {
-                Thread.sleep(1000*15);
-            } catch (InterruptedException ignored) {
-                return;
-            }
-            player.sendMessage(prefix +ChatColor.RED+ "Die Zeit ist um!");
+    public List<Team> getTeams() {
+        return teams;
+    }
 
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-                public void run() {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20, 0));
-                    player.teleport(lobbyLocation);
-                }
-            });
-            canMoveOnCurrentMap = true;
+    public void addTeam(Team team){
+        teams.add(team);
+    }
 
-            countdownThread = null;
-        });
-        countdownThread.start();
+    public TeamManager getTeamManager() {
+        return teamManager;
     }
 
     private void registerEvents(){
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new PlayerEvents(this), this);
+
+    }
+
+    private void registerCommands(){
+        LifecycleEventManager<Plugin> manager = this.getLifecycleManager();
+        manager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            final Commands commands = event.registrar();
+            commands.register("mg", "MapGuesser Command", List.of("tpc"), new MapGuesserCMD(this));
+        });
 
     }
 
