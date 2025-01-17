@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 
 public final class MapGuesser extends JavaPlugin {
 
-
     public static MapGuesser instance;
 
     public static Logger logger;
@@ -29,16 +28,11 @@ public final class MapGuesser extends JavaPlugin {
 
     public TeamManager teamManager;
 
-
-    private final String prefix = ChatColor.DARK_GREEN + "[MapGuesser] "+ ChatColor.GRAY;
+    private final String prefix = ChatColor.DARK_GREEN + "[TerraGuessr] "+ ChatColor.GRAY;
 
     private boolean canMoveOnCurrentMap = true;
 
     private List<Team> teams;
-
-
-
-
 
     @Override
     public void onEnable() {
@@ -49,20 +43,11 @@ public final class MapGuesser extends JavaPlugin {
         teams = new ArrayList<>();
         teamManager = new TeamManager(this);
 
-
         registerEvents();
         registerCommands();
 
         fileManager.readConfig();
-
-
     }
-
-    @Override
-    public void onDisable() {
-
-    }
-
 
     public static MapGuesser getInstance() {
         return instance;
@@ -99,16 +84,13 @@ public final class MapGuesser extends JavaPlugin {
     private void registerEvents(){
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new PlayerEvents(this), this);
-
     }
 
     private void registerCommands(){
         LifecycleEventManager<Plugin> manager = this.getLifecycleManager();
         manager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             final Commands commands = event.registrar();
-            commands.register("mg", "MapGuesser Command", List.of("tg"), new MapGuesserCMD(this));
+            commands.register("tg", "TerraGuessr Command", List.of("mg"), new MapGuesserCMD(this));
         });
-
     }
-
 }

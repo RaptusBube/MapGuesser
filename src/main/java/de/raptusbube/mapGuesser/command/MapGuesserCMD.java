@@ -23,9 +23,9 @@ public class MapGuesserCMD implements BasicCommand {
     public void execute(@NotNull CommandSourceStack stack, @NotNull String[] strings) {
         if (stack.getSender() instanceof Player player) {
             if(strings.length == 0) {
-                player.sendMessage(instance.getPrefix()+ "/mg join <ID>"+ ChatColor.DARK_AQUA + " Du betrittst ein Team (ID Optional)");
-                player.sendMessage(instance.getPrefix()+ "/mg sjoin <ID>"+ ChatColor.DARK_AQUA + " Du betrittst ein Team als Spectator (ID Optional)");
-                player.sendMessage(instance.getPrefix()+ "/mg leave "+ ChatColor.DARK_AQUA + " Du verlässt ein Team");
+                player.sendMessage(instance.getPrefix()+ "/tg join <ID>"+ ChatColor.DARK_AQUA + " Du betrittst ein Team (ID Optional)");
+                player.sendMessage(instance.getPrefix()+ "/tg sjoin <ID>"+ ChatColor.DARK_AQUA + " Du betrittst ein Team als Spectator (ID Optional)");
+                player.sendMessage(instance.getPrefix()+ "/tg leave "+ ChatColor.DARK_AQUA + " Du verlässt ein Team");
             }else {
                 if(strings[0].equalsIgnoreCase("join")) {
                     if(instance.getTeamManager().isPlayerInTeam(player)) {
