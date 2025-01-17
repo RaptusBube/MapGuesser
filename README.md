@@ -1,6 +1,9 @@
 MapGuesser Minecraft Plugin
 
-MapGuesser is a Minecraft plugin that adds a fun and interactive guessing game to your server! Players start in a lobby, choose one of eight maps, and then guess their location on the selected map. The plugin now includes support for multiple teams, spectators, simultaneous games on a single map, and various gameplay enhancements.
+MapGuesser is a Minecraft plugin that adds a fun and interactive guessing game to your server! Players start in a lobby, choose one of eight maps, and
+then guess their location on the selected map. The plugin now includes support for multiple teams, spectators, simultaneous games on a single map, and
+various gameplay enhancements.
+
 ### 📥 Installation
 
     Download the latest version of the MapGuesser plugin from the Releases page.
@@ -96,13 +99,13 @@ General Settings
     map8/move: false
 
 ### 📋 Commands and Permissions
+
 Commands:
 
     /mg join [ID] - Join a team (default or specified by <ID>).
     /mg sjoin - Join the game as a spectator.
     /mg leave - Leave the game.
     /mg reload - Reloads the plugin configuration without restarting the server.
-
 
 ### 🛠️ Features
 
