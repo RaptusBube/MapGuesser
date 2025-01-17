@@ -17,7 +17,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PlayerEvents implements Listener {
@@ -34,7 +33,7 @@ public class PlayerEvents implements Listener {
         player.teleport(instance.getFileManager().getSpawnLocations().get("lobby"));
         player.setGameMode(GameMode.ADVENTURE);
         event.joinMessage(null);
-        player.sendMessage(instance.getPrefix() + "Willkommen bei "+ChatColor.YELLOW+"MapGuesser"+ChatColor.GRAY+" "+player.getName()+"!");
+        player.sendMessage(instance.getPrefix() + "Willkommen bei "+ChatColor.YELLOW+"TerraGuessr"+ChatColor.GRAY+" "+player.getName()+"!");
         ItemStack itemStack = new ItemStack(Material.COMPASS);
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.setDisplayName(ChatColor.GOLD + "Map Selector");

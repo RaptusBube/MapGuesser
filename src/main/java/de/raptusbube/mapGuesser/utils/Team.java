@@ -1,8 +1,9 @@
 package de.raptusbube.mapGuesser.utils;
 
 import de.raptusbube.mapGuesser.MapGuesser;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -37,13 +38,13 @@ public class Team {
         spawn = location;
         ItemStack itemStack = new ItemStack(Material.RED_BED);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.RED + "Lobby (Game abbrechen)");
+        itemMeta.displayName(Component.text("Lobby (Game abbrechen)", NamedTextColor.RED));
         itemStack.setItemMeta(itemMeta);
         ItemStack itemStack1 = new ItemStack(Material.COMPASS);
         ItemMeta itemMeta1 = itemStack1.getItemMeta();
-        itemMeta1.setDisplayName(ChatColor.GREEN + "Zurück zum Anfang");
+        itemMeta1.displayName(Component.text("Zurück zum Anfang", NamedTextColor.GREEN));
         itemStack1.setItemMeta(itemMeta1);
-        players.forEach(player -> player.getInventory().setItem(0, itemStack));
+        players.forEach(player -> player.getInventory().setItem(8, itemStack));
         players.forEach(player -> player.getInventory().setItem(4, itemStack1));
         players.forEach(player -> player.teleport(location));
         if(canMove) {
@@ -67,7 +68,7 @@ public class Team {
                     players.forEach(player -> player.sendTitle("§aGo!", "", 10, 40, 10));
                     players.forEach(player -> player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType())));
                     players.forEach(player -> player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f));
-                    players.forEach(player -> player.sendMessage(instance.getPrefix() + "Du hast nun "+ChatColor.GOLD + duration +ChatColor.GRAY+ " Sekunden die Map zu erkunden!"));
+                    players.forEach(player -> player.sendMessage(instance.getPrefix() + "Du hast nun "+ ChatColor.GOLD + duration + ChatColor.GRAY + " Sekunden die Map zu erkunden!"));
                     remainingTime--;
                 }else{
                     canMove = origCanMove;
@@ -85,7 +86,7 @@ public class Team {
                         spectators.forEach(player -> player.setGameMode(GameMode.ADVENTURE));
                         ItemStack itemStack = new ItemStack(Material.COMPASS);
                         ItemMeta itemMeta = itemStack.getItemMeta();
-                        itemMeta.setDisplayName(ChatColor.GOLD + "Map Selector");
+                        itemMeta.displayName(Component.text("Map Selector", NamedTextColor.GOLD));
                         canMove = true;
                         itemStack.setItemMeta(itemMeta);
                         players.forEach(player -> player.getInventory().setItem(0, itemStack));
@@ -115,7 +116,7 @@ public class Team {
         players.forEach(player -> player.getInventory().clear());
         ItemStack itemStack = new ItemStack(Material.COMPASS);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.GOLD + "Map Selector");
+        itemMeta.displayName(Component.text("Map Selector", NamedTextColor.GOLD));
         itemStack.setItemMeta(itemMeta);
         players.forEach(player -> player.getInventory().setItem(0, itemStack));
         canMove = true;
