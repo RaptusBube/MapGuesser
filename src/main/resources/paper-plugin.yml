@@ -1,4 +1,4 @@
 name: MapGuesser
-version: '1.1.1-SNAPSHOT'
-main: de.raptusbube.mapGuesser.MapGuesser
+version: '1.1.2-SNAPSHOT'
+main: de.raptusbube.mapguesser.MapGuesser
 api-version: '1.21'
