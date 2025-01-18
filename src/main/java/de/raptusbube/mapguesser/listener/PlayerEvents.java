@@ -18,6 +18,7 @@ import java.util.*;
 
 public class PlayerEvents implements Listener {
 
+    public static final String SELECTOR = "Map Selector";
     private final MapGuesser instance;
 
     public PlayerEvents(MapGuesser instance) {
@@ -34,9 +35,9 @@ public class PlayerEvents implements Listener {
             .append(Component.text("Willkommen bei ", NamedTextColor.GRAY))
             .append(Component.text("TerraGuessr ", NamedTextColor.YELLOW))
             .append(Component.text(player.getName() + "!", NamedTextColor.GRAY)));
-        ItemStack itemStack = new ItemStack(Material.COMPASS);
+        ItemStack itemStack = new ItemStack(Material.FILLED_MAP);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.displayName(Component.text("Map Selector", NamedTextColor.GOLD));
+        itemMeta.displayName(Component.text(SELECTOR, NamedTextColor.GOLD));
         itemStack.setItemMeta(itemMeta);
         player.getInventory().setItem(0, itemStack);
     }
@@ -54,12 +55,12 @@ public class PlayerEvents implements Listener {
     }
 
     @EventHandler
-    public void onDamage(EntityDamageEvent e) {
+    public void onDamage(@NotNull EntityDamageEvent e) {
         e.setCancelled(true);
     }
 
     @EventHandler
-    public void onPlayerMove(PlayerMoveEvent e) {
+    public void onPlayerMove(@NotNull PlayerMoveEvent e) {
         Player player = e.getPlayer();
         Team team;
         if ((team = instance.getTeamManager().getTeamFromPlayer(player)) != null && !team.isCanMove() &&
@@ -72,11 +73,10 @@ public class PlayerEvents implements Listener {
                 e.getFrom().getPitch());
             e.getPlayer().teleport(loc);
         }
-
     }
 
     @EventHandler
-    public void onPlayerInteractEvent(PlayerInteractEvent event) {
+    public void onPlayerInteractEvent(@NotNull PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (event.getClickedBlock() != null) {
             Location location = event.getClickedBlock().getLocation();
@@ -109,7 +109,7 @@ public class PlayerEvents implements Listener {
             if (displayName == null) {
                 displayName = Component.empty();
             }
-            if (displayName.equals(Component.text("Map Selector", NamedTextColor.GOLD))) {
+            if (displayName.equals(Component.text(SELECTOR, NamedTextColor.GOLD))) {
                 Inventory inv = Bukkit.createInventory(null, 9, Component.text("Wähle eine Map aus!"));
                 List<String> sortedMaps = instance.getFileManager().getSpawnLocations().keySet().stream().sorted((map1, map2) -> {
                     String numPart1 = map1.replaceAll("\\D", "");
@@ -161,6 +161,15 @@ public class PlayerEvents implements Listener {
                     player.sendMessage(instance.getPrefix().append(Component.text("Du musst zunächst einem Team beitreten!", NamedTextColor.RED)));
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onItemDrop(@NotNull PlayerDropItemEvent event) {
+        if (event.getItemDrop().getItemStack().displayName() instanceof TranslatableComponent c && c.arguments().getFirst().asComponent().children().getFirst()   instanceof TextComponent component &&
+            List.of(SELECTOR, "Lobby (Game abbrechen)", "Zurück zum Anfang").contains(component.content())) {
+                event.getPlayer().sendMessage(instance.getPrefix().append(Component.text("Du kannst dieses Item nicht droppen!", NamedTextColor.RED)));
+                event.setCancelled(true);
         }
     }
 }

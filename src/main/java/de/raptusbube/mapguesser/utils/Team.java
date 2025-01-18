@@ -41,17 +41,21 @@ public class Team {
         ItemMeta itemMeta1 = itemStack1.getItemMeta();
         itemMeta1.displayName(Component.text("Zurück zum Anfang", NamedTextColor.GREEN));
         itemStack1.setItemMeta(itemMeta1);
-        players.forEach(player -> player.getInventory().setItem(8, itemStack));
-        players.forEach(player -> player.getInventory().setItem(4, itemStack1));
-        players.forEach(player -> player.getInventory().clear(0));
-        players.forEach(player -> player.teleport(location));
+        players.forEach(player -> {
+            player.getInventory().setItem(8, itemStack);
+            player.getInventory().setItem(4, itemStack1);
+            player.getInventory().clear(0);
+            player.teleport(location);
+        });
         if (canMove) {
             players.forEach(player -> hidePlayersNotInTeam(player, this));
         } else {
             players.forEach(this::hidePlayers);
         }
-        spectators.forEach(player -> player.setGameMode(GameMode.SPECTATOR));
-        spectators.forEach(player -> player.teleport(location));
+        spectators.forEach(player -> {
+            player.teleport(location);
+            Bukkit.getScheduler().runTaskLater(MapGuesser.getInstance(), () -> player.setGameMode(GameMode.SPECTATOR), 1);
+        });
         taskId = new GameTask(duration, this).runTaskTimer(MapGuesser.getInstance(), 0, 20).getTaskId();
     }
 
@@ -68,7 +72,7 @@ public class Team {
             player.teleport(lobby);
             player.getInventory().clear();
         });
-        ItemStack itemStack = new ItemStack(Material.COMPASS);
+        ItemStack itemStack = new ItemStack(Material.FILLED_MAP);
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.displayName(Component.text("Map Selector", NamedTextColor.GOLD));
         itemStack.setItemMeta(itemMeta);

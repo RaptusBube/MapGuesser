@@ -1,4 +1,9 @@
 name: MapGuesser
-version: '1.1.2-SNAPSHOT'
+version: '1.1.2'
 main: de.raptusbube.mapguesser.MapGuesser
 api-version: '1.21'
+dependencies:
+  server:
+    Multiverse-Core:
+      load: BEFORE
+      required: false

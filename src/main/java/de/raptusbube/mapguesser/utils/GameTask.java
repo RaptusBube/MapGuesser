@@ -5,10 +5,12 @@ import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.format.*;
 import net.kyori.adventure.title.*;
 import org.bukkit.*;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.*;
 import org.bukkit.scheduler.*;
+import org.jetbrains.annotations.*;
 
 import java.time.*;
 
@@ -66,7 +68,7 @@ public class GameTask extends BukkitRunnable {
                     player.teleport(lobby);
                     player.setGameMode(GameMode.ADVENTURE);
                 });
-                ItemStack itemStack = new ItemStack(Material.COMPASS);
+                ItemStack itemStack = new ItemStack(Material.FILLED_MAP);
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 itemMeta.displayName(Component.text("Map Selector", NamedTextColor.GOLD));
                 team.setCanMove(true);
@@ -79,23 +81,27 @@ public class GameTask extends BukkitRunnable {
             } else {
                 remainingTime--;
                 if (remainingTime % 30 == 0) {
-                    team.getPlayers()
-                        .forEach(player -> player.sendMessage(MapGuesser.getInstance()
-                            .getPrefix()
-                            .append(Component.text("Du hast noch ", NamedTextColor.GRAY)
-                                .append(Component.text(remainingTime, NamedTextColor.GREEN)
-                                    .append(Component.text(" Sekunden!", NamedTextColor.GRAY))))));
+                    team.getPlayers().forEach(player -> remainingTimeMessage(player, NamedTextColor.GREEN));
+                    team.getSpectators().forEach(player -> remainingTimeMessage(player, NamedTextColor.GREEN));
                 } else if (remainingTime < 6) {
                     team.getPlayers().forEach(player -> {
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
-                        player.sendMessage(MapGuesser.getInstance()
-                            .getPrefix()
-                            .append(Component.text("Du hast noch ", NamedTextColor.GRAY)
-                                .append(Component.text(remainingTime, NamedTextColor.DARK_RED)
-                                    .append(Component.text(" Sekunden!", NamedTextColor.GRAY)))));
+                        remainingTimeMessage(player, NamedTextColor.DARK_RED);
+                    });
+                    team.getSpectators().forEach(player -> {
+                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f);
+                        remainingTimeMessage(player, NamedTextColor.DARK_RED);
                     });
                 }
             }
         }
+    }
+
+    private void remainingTimeMessage(@NotNull Player player, NamedTextColor color) {
+        player.sendMessage(MapGuesser.getInstance()
+            .getPrefix()
+            .append(Component.text("Du hast noch ", NamedTextColor.GRAY)
+                .append(Component.text(remainingTime, color)
+                    .append(Component.text(" Sekunden!", NamedTextColor.GRAY)))));
     }
 }
