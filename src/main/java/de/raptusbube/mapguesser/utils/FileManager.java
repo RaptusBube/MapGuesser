@@ -39,9 +39,9 @@ public class FileManager {
         cfg.options().copyDefaults(true);
 
         var defaultWorld = Bukkit.getWorlds().getFirst();
-        cfg.addDefault(ROOT_KEY + "lobby.spawn", new Location(defaultWorld, 0, 1, 0));
-        cfg.addDefault(ROOT_KEY + "map1.spawn", new Location(defaultWorld, 16, 10, 18, -90, 0));
-        cfg.addDefault(ROOT_KEY + "map1.button", new BlockVector(16, 1, 18));
+        cfg.addDefault(ROOT_KEY + "lobby.spawn", new Location(defaultWorld, -54.5, 110, -25.5, -90,0));
+        cfg.addDefault(ROOT_KEY + "map1.spawn", new Location(defaultWorld, -47.5, 110, -33.5, -90, 0));
+        cfg.addDefault(ROOT_KEY + "map1.button", new BlockVector(-50, 110, -34));
         cfg.addDefault(ROOT_KEY + "map1.time", 20);
         cfg.addDefault(ROOT_KEY + "map1.move", true);
         cfg.addDefault(ROOT_KEY + "map2.spawn", new Location(defaultWorld, 11, 10, 19, -90, 0));

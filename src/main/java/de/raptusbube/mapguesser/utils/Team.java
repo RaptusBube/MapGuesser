@@ -42,11 +42,14 @@ public class Team {
         itemMeta1.displayName(Component.text("Zurück zum Anfang", NamedTextColor.GREEN));
         itemStack1.setItemMeta(itemMeta1);
         players.forEach(player -> {
-            player.getInventory().setItem(8, itemStack);
-            player.getInventory().setItem(4, itemStack1);
             player.getInventory().clear(0);
             player.teleport(location);
         });
+        Bukkit.getScheduler().runTaskLater(MapGuesser.getInstance(), () -> players.forEach(player -> {
+            player.getInventory().setItem(8, itemStack);
+            player.getInventory().setItem(4, itemStack1);
+        }), 5);
+
         if (canMove) {
             players.forEach(player -> hidePlayersNotInTeam(player, this));
         } else {
@@ -77,8 +80,8 @@ public class Team {
         itemMeta.displayName(Component.text("Map Selector", NamedTextColor.GOLD));
         itemStack.setItemMeta(itemMeta);
         players.forEach(player -> {
-            player.getInventory().setItem(0, itemStack);
             player.getInventory().clear(8);
+            player.getInventory().setItem(0, itemStack);
         });
         canMove = true;
         spectators.forEach(player -> {

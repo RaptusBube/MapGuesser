@@ -45,7 +45,7 @@ public class GameTask extends BukkitRunnable {
                     Title.Times.times(Duration.ofMillis(500), Duration.ofSeconds(2), Duration.ofMillis(500))));
                 player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-                player.sendMessage(Component.text("Du hast nun ")
+                player.sendMessage(Component.text("Du hast nun ", NamedTextColor.GRAY)
                     .append(Component.text(duration, NamedTextColor.GOLD))
                     .append(Component.text(" Sekunden die Map zu erkunden!", NamedTextColor.GRAY)));
             });

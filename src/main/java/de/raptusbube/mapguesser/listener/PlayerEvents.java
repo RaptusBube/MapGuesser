@@ -28,6 +28,8 @@ public class PlayerEvents implements Listener {
     @EventHandler
     public void onPlayerJoin(@NotNull PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        player.getInventory().clear();
+        player.clearActivePotionEffects();
         player.teleport(instance.getFileManager().getSpawnLocations().get("lobby"));
         player.setGameMode(GameMode.ADVENTURE);
         event.joinMessage(null);
@@ -44,6 +46,9 @@ public class PlayerEvents implements Listener {
 
     @EventHandler
     public void onPlayerQuit(@NotNull PlayerQuitEvent event) {
+        if (instance.getTeamManager().isPlayerInTeam(event.getPlayer()) && instance.getTeamManager().getTeamFromPlayer(event.getPlayer()).isGameRunning()) {
+            instance.getTeamManager().getTeamFromPlayer(event.getPlayer()).cancelGame();
+        }
         event.quitMessage(Component.empty());
     }
 
@@ -69,8 +74,8 @@ public class PlayerEvents implements Listener {
                 e.getFrom().getX(),
                 e.getFrom().getY(),
                 e.getFrom().getZ(),
-                e.getFrom().getYaw(),
-                e.getFrom().getPitch());
+                e.getTo().getYaw(),
+                e.getTo().getPitch());
             e.getPlayer().teleport(loc);
         }
     }
@@ -89,7 +94,6 @@ public class PlayerEvents implements Listener {
                         }
                         team.setCanMove(instance.getFileManager().getCanMove().get(key));
                         team.startGame(instance.getFileManager().getTime().get(key), instance.getFileManager().getSpawnLocations().get(key));
-                        break;
                     } else {
                         if (instance.getTeamManager().isPlayerSpectator(player)) {
                             player.sendMessage(instance.getPrefix()
@@ -98,46 +102,44 @@ public class PlayerEvents implements Listener {
                             player.sendMessage(instance.getPrefix()
                                 .append(Component.text("Du musst zunächst einem Team beitreten!", NamedTextColor.RED)));
                         }
-                        return;
                     }
+                    return;
                 }
             }
-        } else {
-            if (event.getItem() == null) return;
-            if (event.getItem().getItemMeta() == null) return;
-            Component displayName = event.getItem().getItemMeta().displayName();
-            if (displayName == null) {
-                displayName = Component.empty();
+        }
+        if (event.getItem() == null) return;
+        if (event.getItem().getItemMeta() == null) return;
+        Component displayName = event.getItem().getItemMeta().displayName();
+        if (displayName == null) {
+            displayName = Component.empty();
+        }
+        if (displayName.equals(Component.text(SELECTOR, NamedTextColor.GOLD))) {
+            Inventory inv = Bukkit.createInventory(null, 9, Component.text("Wähle eine Map aus!"));
+            List<String> sortedMaps = instance.getFileManager().getSpawnLocations().keySet().stream().sorted((map1, map2) -> {
+                String numPart1 = map1.replaceAll("\\D", "");
+                String numPart2 = map2.replaceAll("\\D", "");
+                int num1 = numPart1.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(numPart1);
+                int num2 = numPart2.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(numPart2);
+                return Integer.compare(num1, num2);
+            }).toList();
+            for (String maps : sortedMaps) {
+                if (maps.equals("lobby")) continue;
+                ItemStack item = new ItemStack(Material.GRASS_BLOCK);
+                ItemMeta meta = item.getItemMeta();
+                meta.displayName(Component.text(maps));
+                item.setItemMeta(meta);
+                inv.addItem(item);
             }
-            if (displayName.equals(Component.text(SELECTOR, NamedTextColor.GOLD))) {
-                Inventory inv = Bukkit.createInventory(null, 9, Component.text("Wähle eine Map aus!"));
-                List<String> sortedMaps = instance.getFileManager().getSpawnLocations().keySet().stream().sorted((map1, map2) -> {
-                    String numPart1 = map1.replaceAll("\\D", "");
-                    String numPart2 = map2.replaceAll("\\D", "");
-                    int num1 = numPart1.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(numPart1);
-                    int num2 = numPart2.isEmpty() ? Integer.MAX_VALUE : Integer.parseInt(numPart2);
-                    return Integer.compare(num1, num2);
-                }).toList();
-                for (String maps : sortedMaps) {
-                    if (maps.equals("lobby")) continue;
-                    ItemStack item = new ItemStack(Material.GRASS_BLOCK);
-                    ItemMeta meta = item.getItemMeta();
-                    meta.displayName(Component.text(maps));
-                    item.setItemMeta(meta);
-                    inv.addItem(item);
-                }
-                player.openInventory(inv);
-                event.setCancelled(true);
-            } else if (displayName.equals(Component.text("Lobby (Game abbrechen)", NamedTextColor.RED))) {
-                if (instance.getTeamManager().isPlayerInTeam(player) && instance.getTeamManager().getTeamFromPlayer(player).isGameRunning()) {
-                    instance.getTeamManager().getTeamFromPlayer(player).cancelGame();
-                }
-
-            } else if (displayName.equals(Component.text("Zurück zum Anfang", NamedTextColor.GREEN)) && // TODO Fix bug in warup phase when you
+            player.openInventory(inv);
+            event.setCancelled(true);
+        } else if (displayName.equals(Component.text("Lobby (Game abbrechen)", NamedTextColor.RED))) {
+            if (instance.getTeamManager().isPlayerInTeam(player) && instance.getTeamManager().getTeamFromPlayer(player).isGameRunning()) {
+                instance.getTeamManager().getTeamFromPlayer(player).cancelGame();
+            }
+        } else if (displayName.equals(Component.text("Zurück zum Anfang", NamedTextColor.GREEN)) && // TODO Fix bug in warup phase when you
                 // cannot move anymore
                 instance.getTeamManager().isPlayerInTeam(player)) {
-                player.teleport(instance.getTeamManager().getTeamFromPlayer(player).getSpawn());
-            }
+            player.teleport(instance.getTeamManager().getTeamFromPlayer(player).getSpawn());
         }
     }
 
